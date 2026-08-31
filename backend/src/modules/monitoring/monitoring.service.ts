@@ -1,4 +1,5 @@
 import * as deviceRepository from "../device/device.repository.js";
+import { sendOfflineAlert } from "../alert/alert.service.js";
 
 let isMonitoring = false;
 
@@ -24,15 +25,27 @@ export const startMonitoring = () => {
         }
 
         const elapsedSeconds = (now - device.lastSeenAt.getTime()) / 1000;
+        const isOffline = elapsedSeconds > device.expectedInterval;
 
-        if (
-          elapsedSeconds > device.expectedInterval &&
-          device.status !== "OFFLINE"
-        ) {
-          await deviceRepository.updateDeviceStatus(device.deviceId, {
-            status: "OFFLINE",
-            lastSeenAt: device.lastSeenAt,
-          });
+        if (isOffline) {
+          let updatedAlertSent = device.alertSent;
+
+          if (!device.alertSent) {
+            const emailSuccess = await sendOfflineAlert(device);
+            if (emailSuccess) {
+              updatedAlertSent = true;
+            } else {
+              console.warn(`Failed to send alert for device: ${device.deviceId}`);
+            }
+          }
+
+          if (device.status !== "OFFLINE" || updatedAlertSent !== device.alertSent) {
+            await deviceRepository.updateDeviceStatus(device.deviceId, {
+              status: "OFFLINE",
+              lastSeenAt: device.lastSeenAt,
+              alertSent: updatedAlertSent,
+            });
+          }
         }
       }
     } catch (error) {
