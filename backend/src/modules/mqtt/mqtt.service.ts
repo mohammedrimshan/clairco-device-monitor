@@ -1,6 +1,7 @@
 import mqtt from "mqtt";
 import { mqttPayloadSchema } from "./mqtt.schema.js";
 import * as deviceRepository from "../device/device.repository.js";
+import { emitDeviceUpdated } from "../socket/socket.service.js";
 
 
 let client: mqtt.MqttClient | null = null;
@@ -68,11 +69,13 @@ export const startMqttService = async () => {
           return;
         }
 
-        await deviceRepository.updateDeviceStatus(deviceId, {
+        const updatedDevice = await deviceRepository.updateDeviceStatus(deviceId, {
           status: "ONLINE",
           lastSeenAt: new Date(),
           alertSent: false,
         });
+
+        emitDeviceUpdated(updatedDevice);
 
       } catch (err) {
         console.error(`Error processing message for deviceId ${deviceId}:`, err);

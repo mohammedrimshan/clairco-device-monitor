@@ -1,5 +1,6 @@
 import * as deviceRepository from "../device/device.repository.js";
 import { sendOfflineAlert } from "../alert/alert.service.js";
+import { emitDeviceUpdated } from "../socket/socket.service.js";
 
 let isMonitoring = false;
 
@@ -40,11 +41,13 @@ export const startMonitoring = () => {
           }
 
           if (device.status !== "OFFLINE" || updatedAlertSent !== device.alertSent) {
-            await deviceRepository.updateDeviceStatus(device.deviceId, {
+            const updatedDevice = await deviceRepository.updateDeviceStatus(device.deviceId, {
               status: "OFFLINE",
               lastSeenAt: device.lastSeenAt,
               alertSent: updatedAlertSent,
             });
+            
+            emitDeviceUpdated(updatedDevice);
           }
         }
       }
