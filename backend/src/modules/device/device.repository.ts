@@ -46,3 +46,13 @@ export const deleteDevice = async (id: number) => {
     where: { id },
   });
 };
+
+export const updateDeviceStatus = async (
+  deviceId: string,
+  data: { status: "ONLINE" | "OFFLINE"; lastSeenAt: Date; alertSent?: boolean }
+) => {
+  return prisma.device.update({
+    where: { deviceId },
+    data,
+  });
+};
