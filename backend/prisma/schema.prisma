@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+}
+
+model Device {
+  id               Int          @id @default(autoincrement())
+  deviceId         String       @unique
+  name             String
+  mqttTopic        String       @unique
+  expectedInterval Int
+  lastSeenAt       DateTime?
+  status           DeviceStatus @default(OFFLINE)
+  alertEmail       String
+  alertSent        Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
