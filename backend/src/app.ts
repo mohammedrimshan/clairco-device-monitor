@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import deviceRoutes from "./modules/device/device.routes.js";
+import { notFoundMiddleware } from "./middleware/not-found.middleware.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -20,5 +22,8 @@ app.get("/health", (_req, res) => {
     message: "Clairco Device Monitor API is running",
   });
 });
+
+app.use(notFoundMiddleware);
+app.use(errorMiddleware);
 
 export default app;

@@ -4,6 +4,7 @@ import type {
   CreateDeviceInput,
   UpdateDeviceInput,
 } from "./device.schema.js";
+import { DeviceStatus } from "../../enums/device-status.enum.js";
 
 export const createDevice = async (data: CreateDeviceInput) => {
   return prisma.device.create({
@@ -49,7 +50,7 @@ export const deleteDevice = async (id: number) => {
 
 export const updateDeviceStatus = async (
   deviceId: string,
-  data: { status: "ONLINE" | "OFFLINE"; lastSeenAt: Date; alertSent?: boolean }
+  data: { status: DeviceStatus; lastSeenAt: Date; alertSent?: boolean }
 ) => {
   return prisma.device.update({
     where: { deviceId },

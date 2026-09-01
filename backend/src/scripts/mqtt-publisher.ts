@@ -2,11 +2,13 @@ import "dotenv/config";
 import mqtt from "mqtt";
 import { z } from "zod";
 
+import { ENV } from "../config/env.js";
+
 // --- Environment ---
-const brokerUrl = process.env.MQTT_BROKER_URL ?? "mqtt://localhost:1883";
-const apiBase = process.env.API_URL ?? "http://localhost:5000/api";
-const heartbeatMs = Number(process.env.MQTT_TEST_INTERVAL_MS ?? 10_000);
-const refreshMs = Number(process.env.MQTT_DEVICE_REFRESH_INTERVAL_MS ?? 10_000);
+const brokerUrl = ENV.MQTT_BROKER_URL ?? "mqtt://localhost:1883";
+const apiBase = ENV.API_URL;
+const heartbeatMs = ENV.MQTT_TEST_INTERVAL_MS;
+const refreshMs = ENV.MQTT_DEVICE_REFRESH_INTERVAL_MS;
 
 // --- Types & validation ---
 // Only the fields the simulator needs — no coupling to the full Device model.
@@ -124,8 +126,8 @@ const main = async (): Promise<void> => {
   console.log("");
 
   const connectOptions: mqtt.IClientOptions = {};
-  if (process.env.MQTT_USERNAME) connectOptions.username = process.env.MQTT_USERNAME;
-  if (process.env.MQTT_PASSWORD) connectOptions.password = process.env.MQTT_PASSWORD;
+  if (ENV.MQTT_USERNAME) connectOptions.username = ENV.MQTT_USERNAME;
+  if (ENV.MQTT_PASSWORD) connectOptions.password = ENV.MQTT_PASSWORD;
 
   const client = mqtt.connect(brokerUrl, connectOptions);
 

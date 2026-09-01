@@ -4,7 +4,9 @@ import { startMqttService } from "./modules/mqtt/mqtt.service.js";
 import { startMonitoring } from "./modules/monitoring/monitoring.service.js";
 import { initSocket } from "./modules/socket/socket.service.js";
 
-const PORT = Number(process.env.PORT) || 5000;
+import { ENV } from "./config/env.js";
+
+const PORT = ENV.PORT;
 
 const startServer = async () => {
   await startMqttService();

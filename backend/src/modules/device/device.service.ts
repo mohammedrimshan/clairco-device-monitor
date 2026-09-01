@@ -5,17 +5,14 @@ import {
   unsubscribeFromTopic,
 } from "../mqtt/mqtt.service.js";
 
-export class DeviceError extends Error {
-  constructor(public statusCode: number, message: string) {
-    super(message);
-    this.name = "DeviceError";
-  }
-}
+import { AppError } from "../../errors/app.error.js";
+import { HTTP_STATUS } from "../../constants/http-status.js";
+import { MESSAGES } from "../../constants/messages.js";
 
 export const createDevice = async (data: CreateDeviceInput) => {
   const existing = await deviceRepository.findDeviceByDeviceId(data.deviceId);
   if (existing) {
-    throw new DeviceError(409, "Device with this ID already exists");
+    throw new AppError(HTTP_STATUS.CONFLICT, MESSAGES.DEVICE.ALREADY_EXISTS);
   }
 
   const newDevice = await deviceRepository.createDevice(data);
@@ -35,7 +32,7 @@ export const getAllDevices = async () => {
 export const getDeviceById = async (id: number) => {
   const device = await deviceRepository.findDeviceById(id);
   if (!device) {
-    throw new DeviceError(404, "Device not found");
+    throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.DEVICE.NOT_FOUND);
   }
   return device;
 };
@@ -43,7 +40,7 @@ export const getDeviceById = async (id: number) => {
 export const updateDevice = async (id: number, data: UpdateDeviceInput) => {
   const device = await deviceRepository.findDeviceById(id);
   if (!device) {
-    throw new DeviceError(404, "Device not found");
+    throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.DEVICE.NOT_FOUND);
   }
   return deviceRepository.updateDevice(id, data);
 };
@@ -51,7 +48,7 @@ export const updateDevice = async (id: number, data: UpdateDeviceInput) => {
 export const deleteDevice = async (id: number) => {
   const device = await deviceRepository.findDeviceById(id);
   if (!device) {
-    throw new DeviceError(404, "Device not found");
+    throw new AppError(HTTP_STATUS.NOT_FOUND, MESSAGES.DEVICE.NOT_FOUND);
   }
 
   await deviceRepository.deleteDevice(id);

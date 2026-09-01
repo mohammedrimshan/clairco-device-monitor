@@ -2,6 +2,8 @@ import mqtt from "mqtt";
 import { mqttPayloadSchema } from "./mqtt.schema.js";
 import * as deviceRepository from "../device/device.repository.js";
 import { emitDeviceUpdated } from "../socket/socket.service.js";
+import { ENV } from "../../config/env.js";
+import { DeviceStatus } from "../../enums/device-status.enum.js";
 
 let client: mqtt.MqttClient | null = null;
 
@@ -58,15 +60,15 @@ export const unsubscribeFromTopic = (topic: string): void => {
 // --- Service startup ---
 
 export const startMqttService = async (): Promise<void> => {
-  const brokerUrl = process.env.MQTT_BROKER_URL;
+  const brokerUrl = ENV.MQTT_BROKER_URL;
   if (!brokerUrl) {
     console.error("[MQTT] MQTT_BROKER_URL is not defined in environment variables");
     return;
   }
 
   const options: mqtt.IClientOptions = {
-    username: process.env.MQTT_USERNAME,
-    password: process.env.MQTT_PASSWORD,
+    username: ENV.MQTT_USERNAME,
+    password: ENV.MQTT_PASSWORD,
   };
 
   try {
@@ -115,7 +117,7 @@ export const startMqttService = async (): Promise<void> => {
         }
 
         const updatedDevice = await deviceRepository.updateDeviceStatus(deviceId, {
-          status: "ONLINE",
+          status: DeviceStatus.ONLINE,
           lastSeenAt: new Date(),
           alertSent: false,
         });

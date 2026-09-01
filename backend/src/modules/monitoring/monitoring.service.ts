@@ -1,13 +1,13 @@
 import * as deviceRepository from "../device/device.repository.js";
 import { sendOfflineAlert } from "../alert/alert.service.js";
 import { emitDeviceUpdated } from "../socket/socket.service.js";
+import { ENV } from "../../config/env.js";
+import { DeviceStatus } from "../../enums/device-status.enum.js";
 
 let isMonitoring = false;
 
 export const startMonitoring = () => {
-  const intervalMs = process.env.MONITORING_INTERVAL_MS
-    ? parseInt(process.env.MONITORING_INTERVAL_MS, 10)
-    : 5000;
+  const intervalMs = ENV.MONITORING_INTERVAL_MS;
 
   setInterval(async () => {
     if (isMonitoring) {
@@ -40,9 +40,9 @@ export const startMonitoring = () => {
             }
           }
 
-          if (device.status !== "OFFLINE" || updatedAlertSent !== device.alertSent) {
+          if (device.status !== DeviceStatus.OFFLINE || updatedAlertSent !== device.alertSent) {
             const updatedDevice = await deviceRepository.updateDeviceStatus(device.deviceId, {
-              status: "OFFLINE",
+              status: DeviceStatus.OFFLINE,
               lastSeenAt: device.lastSeenAt,
               alertSent: updatedAlertSent,
             });
