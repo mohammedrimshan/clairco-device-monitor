@@ -13,7 +13,10 @@ export const createDevice: RequestHandler = async (req, res, next) => {
   try {
     const validatedData = createDeviceSchema.parse(req.body);
     const newDevice = await deviceService.createDevice(validatedData);
-    res.status(HTTP_STATUS.CREATED).json(newDevice);
+    res.status(HTTP_STATUS.CREATED).json({
+      message: MESSAGES.DEVICE.CREATED,
+      data: newDevice,
+    });
   } catch (error) {
     next(error);
   }
@@ -83,7 +86,10 @@ export const updateDevice: RequestHandler = async (req, res, next) => {
       validatedData,
     );
 
-    res.status(HTTP_STATUS.OK).json(updatedDevice);
+    res.status(HTTP_STATUS.OK).json({
+      message: MESSAGES.DEVICE.UPDATED,
+      data: updatedDevice,
+    });
   } catch (error) {
     next(error);
   }

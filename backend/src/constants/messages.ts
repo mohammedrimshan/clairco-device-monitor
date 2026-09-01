@@ -2,6 +2,8 @@ export const MESSAGES = {
   DEVICE: {
     NOT_FOUND: "Device not found",
     ALREADY_EXISTS: "Device with this ID already exists",
+    CREATED: "Device created successfully",
+    UPDATED: "Device updated successfully",
     DELETED: "Device deleted successfully",
     INVALID_ID: "Invalid device ID",
     INVALID_INPUT: "Invalid input",

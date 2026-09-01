@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Dashboard } from "@/pages/Dashboard";
 import { Devices } from "@/pages/Devices";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/devices" element={<Devices />} />
         </Route>
       </Routes>
+      <Toaster position="top-right" richColors />
     </BrowserRouter>
   );
 }

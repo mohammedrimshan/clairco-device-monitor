@@ -5,11 +5,13 @@ import type {
   UpdateDeviceInput,
   DeviceListResponse,
   DeleteDeviceResponse,
+  ApiResponse,
 } from "@/types/device";
 import {
   deviceSchema,
   deviceListResponseSchema,
   deleteDeviceResponseSchema,
+  apiResponseSchema,
 } from "@/schemas/device.schema";
 
 export const getDevices = async (): Promise<DeviceListResponse> => {
@@ -24,17 +26,17 @@ export const getDeviceById = async (id: number): Promise<Device> => {
 
 export const createDevice = async (
   data: CreateDeviceInput
-): Promise<Device> => {
+): Promise<ApiResponse<Device>> => {
   const response = await apiClient.post("/devices", data);
-  return deviceSchema.parse(response.data);
+  return apiResponseSchema(deviceSchema).parse(response.data);
 };
 
 export const updateDevice = async (
   id: number,
   data: UpdateDeviceInput
-): Promise<Device> => {
+): Promise<ApiResponse<Device>> => {
   const response = await apiClient.patch(`/devices/${id}`, data);
-  return deviceSchema.parse(response.data);
+  return apiResponseSchema(deviceSchema).parse(response.data);
 };
 
 export const deleteDevice = async (

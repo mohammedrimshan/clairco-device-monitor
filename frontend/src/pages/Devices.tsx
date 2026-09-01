@@ -12,6 +12,8 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { EmptyState } from "@/components/common/EmptyState";
 import type { Device, CreateDeviceInput } from "@/types/device";
 import { Plus, Search, Filter } from "lucide-react";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/error";
 
 type FilterStatus = "ALL" | "ONLINE" | "OFFLINE";
 
@@ -52,14 +54,20 @@ export function Devices() {
       updateMut.mutate(
         { id: editingDevice.id, data: formData },
         {
-          onSuccess: () => setIsFormOpen(false),
-          onError: (err) => alert("Failed to update: " + err.message),
+          onSuccess: (response) => {
+            setIsFormOpen(false);
+            toast.success(response.message);
+          },
+          onError: (err) => toast.error(getErrorMessage(err)),
         }
       );
     } else {
       createMut.mutate(formData, {
-        onSuccess: () => setIsFormOpen(false),
-        onError: (err) => alert("Failed to create: " + err.message),
+        onSuccess: (response) => {
+          setIsFormOpen(false);
+          toast.success(response.message);
+        },
+        onError: (err) => toast.error(getErrorMessage(err)),
       });
     }
   };
@@ -67,8 +75,11 @@ export function Devices() {
   const handleConfirmDelete = () => {
     if (!deletingDevice) return;
     deleteMut.mutate(deletingDevice.id, {
-      onSuccess: () => setIsDeleteOpen(false),
-      onError: (err) => alert("Failed to delete: " + err.message),
+      onSuccess: (data) => {
+        setIsDeleteOpen(false);
+        toast.success(data.message || "Device deleted successfully");
+      },
+      onError: (err) => toast.error(getErrorMessage(err)),
     });
   };
 

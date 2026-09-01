@@ -27,12 +27,34 @@ export function DeviceForm({
     Partial<Record<keyof CreateDeviceInput, string>>
   >({});
 
+  const validateField = (name: keyof CreateDeviceInput, value: any) => {
+    const newFormData = { ...formData, [name]: value };
+    const result = createDeviceSchema.safeParse(newFormData);
+    if (!result.success) {
+      const formatted = result.error.format();
+      const fieldError = (formatted as any)[name]?._errors[0];
+      setErrors((prev) => ({ ...prev, [name]: fieldError }));
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    const val = name === "expectedInterval" ? parseInt(value) || 0 : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "expectedInterval" ? parseInt(value) || 0 : value,
+      [name]: val,
     }));
+
+    if (errors[name as keyof CreateDeviceInput]) {
+      validateField(name as keyof CreateDeviceInput, val);
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    validateField(name as keyof CreateDeviceInput, formData[name as keyof CreateDeviceInput]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,6 +88,7 @@ export function DeviceForm({
           name="deviceId"
           value={formData.deviceId}
           onChange={handleChange}
+          onBlur={handleBlur}
           disabled={!!device}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2 disabled:bg-gray-100 disabled:text-gray-500"
           placeholder="e.g., AC-001"
@@ -81,6 +104,7 @@ export function DeviceForm({
           name="name"
           value={formData.name}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
           placeholder="e.g., Living Room AC"
         />
@@ -97,6 +121,7 @@ export function DeviceForm({
           name="mqttTopic"
           value={formData.mqttTopic}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
           placeholder="e.g., devices/AC-001/data"
         />
@@ -115,6 +140,7 @@ export function DeviceForm({
           min="1"
           value={formData.expectedInterval}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
         />
         {errors.expectedInterval && (
@@ -131,6 +157,7 @@ export function DeviceForm({
           type="email"
           value={formData.alertEmail}
           onChange={handleChange}
+          onBlur={handleBlur}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
           placeholder="e.g., alert@example.com"
         />
