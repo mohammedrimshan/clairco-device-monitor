@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { socket } from "../services/socket.js";
-import { deviceSchema } from "../schemas/device.schema.js";
-import type { DeviceListResponse, Device } from "../types/device.js";
+import { socket } from "@/services/socket";
+import { deviceSchema } from "@/schemas/device.schema";
+import type { DeviceListResponse, Device } from "@/types/device";
 
 export const useDeviceSocket = () => {
   const queryClient = useQueryClient();

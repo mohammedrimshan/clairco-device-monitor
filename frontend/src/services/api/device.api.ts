@@ -1,16 +1,16 @@
-import { apiClient } from "./axios.js";
+import { apiClient } from "./axios";
 import type {
   Device,
   CreateDeviceInput,
   UpdateDeviceInput,
   DeviceListResponse,
   DeleteDeviceResponse,
-} from "../../types/device.js";
+} from "@/types/device";
 import {
   deviceSchema,
   deviceListResponseSchema,
   deleteDeviceResponseSchema,
-} from "../../schemas/device.schema.js";
+} from "@/schemas/device.schema";
 
 export const getDevices = async (): Promise<DeviceListResponse> => {
   const response = await apiClient.get("/devices");

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateDevice } from "../services/api/device.api.js";
-import type { Device, UpdateDeviceInput } from "../types/device.js";
+import { updateDevice } from "@/services/api/device.api";
+import type { Device, UpdateDeviceInput } from "@/types/device";
 
 interface UpdateDeviceVariables {
   id: number;

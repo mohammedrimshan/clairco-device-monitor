@@ -1,4 +1,4 @@
-import type { Device } from "../../types/device.js";
+import type { Device } from "@/types/device";
 
 interface DeviceStatusBadgeProps {
   status: Device["status"];

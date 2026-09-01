@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Device, CreateDeviceInput } from "../../types/device.js";
-import { createDeviceSchema } from "../../schemas/device.schema.js";
+import type { Device, CreateDeviceInput } from "@/types/device";
+import { createDeviceSchema } from "@/schemas/device.schema";
 
 interface DeviceFormProps {
   device?: Device;

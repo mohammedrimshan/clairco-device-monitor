@@ -1,5 +1,5 @@
-import type { Device } from "../../types/device.js";
-import { DeviceStatusBadge } from "./DeviceStatusBadge.js";
+import type { Device } from "@/types/device";
+import { DeviceStatusBadge } from "./DeviceStatusBadge";
 
 interface DeviceCardProps {
   device: Device;

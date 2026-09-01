@@ -1,10 +1,19 @@
-import { Dashboard } from "./pages/Dashboard.js";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Dashboard } from "@/pages/Dashboard";
+import { Devices } from "@/pages/Devices";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-      <Dashboard />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/devices" element={<Devices />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

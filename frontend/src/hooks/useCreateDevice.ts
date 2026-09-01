@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createDevice } from "../services/api/device.api.js";
-import type { Device, CreateDeviceInput } from "../types/device.js";
+import { createDevice } from "@/services/api/device.api";
+import type { Device, CreateDeviceInput } from "@/types/device";
 
 export const useCreateDevice = () => {
   const queryClient = useQueryClient();

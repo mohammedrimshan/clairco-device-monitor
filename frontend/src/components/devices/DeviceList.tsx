@@ -1,5 +1,5 @@
-import type { Device } from "../../types/device.js";
-import { DeviceCard } from "./DeviceCard.js";
+import type { Device } from "@/types/device";
+import { DeviceCard } from "./DeviceCard";
 
 interface DeviceListProps {
   devices: Device[];

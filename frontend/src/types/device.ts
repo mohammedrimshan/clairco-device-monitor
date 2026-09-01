@@ -5,7 +5,7 @@ import {
   updateDeviceSchema,
   deviceListResponseSchema,
   deleteDeviceResponseSchema,
-} from "../schemas/device.schema.js";
+} from "@/schemas/device.schema";
 
 export type Device = z.infer<typeof deviceSchema>;
 export type CreateDeviceInput = z.infer<typeof createDeviceSchema>;
