@@ -3,13 +3,64 @@ import { mqttPayloadSchema } from "./mqtt.schema.js";
 import * as deviceRepository from "../device/device.repository.js";
 import { emitDeviceUpdated } from "../socket/socket.service.js";
 
-
 let client: mqtt.MqttClient | null = null;
 
-export const startMqttService = async () => {
+// Track subscribed topics to avoid duplicate subscriptions.
+const subscribedTopics = new Set<string>();
+
+// --- Dynamic subscription helpers ---
+
+export const subscribeToTopic = (topic: string): void => {
+  if (!client) {
+    console.warn(`[MQTT] Cannot subscribe to ${topic}: client not initialized.`);
+    return;
+  }
+
+  if (!client.connected) {
+    console.warn(`[MQTT] Cannot subscribe to ${topic}: client not connected.`);
+    return;
+  }
+
+  if (subscribedTopics.has(topic)) {
+    return; // already subscribed, no-op
+  }
+
+  client.subscribe(topic, (err) => {
+    if (err) {
+      console.error(`[MQTT] Failed to subscribe to ${topic}:`, err.message);
+    } else {
+      subscribedTopics.add(topic);
+      console.log(`[MQTT] Subscribed to topic: ${topic}`);
+    }
+  });
+};
+
+export const unsubscribeFromTopic = (topic: string): void => {
+  if (!client || !client.connected) {
+    subscribedTopics.delete(topic);
+    return;
+  }
+
+  if (!subscribedTopics.has(topic)) {
+    return; // not subscribed, no-op
+  }
+
+  client.unsubscribe(topic, (err) => {
+    if (err) {
+      console.error(`[MQTT] Failed to unsubscribe from ${topic}:`, err.message);
+    } else {
+      subscribedTopics.delete(topic);
+      console.log(`[MQTT] Unsubscribed from topic: ${topic}`);
+    }
+  });
+};
+
+// --- Service startup ---
+
+export const startMqttService = async (): Promise<void> => {
   const brokerUrl = process.env.MQTT_BROKER_URL;
   if (!brokerUrl) {
-    console.error("MQTT_BROKER_URL is not defined in environment variables");
+    console.error("[MQTT] MQTT_BROKER_URL is not defined in environment variables");
     return;
   }
 
@@ -22,50 +73,44 @@ export const startMqttService = async () => {
     client = mqtt.connect(brokerUrl, options);
 
     client.on("connect", async () => {
-      console.log("Connected to MQTT broker");
+      console.log("[MQTT] Connected to broker");
 
       try {
         const devices = await deviceRepository.findAllDevices();
-        devices.forEach((device) => {
+        for (const device of devices) {
           if (device.mqttTopic) {
-            client?.subscribe(device.mqttTopic, (err) => {
-              if (err) {
-                console.error(`Failed to subscribe to ${device.mqttTopic}:`, err);
-              } else {
-                console.log(`Subscribed to topic: ${device.mqttTopic}`);
-              }
-            });
+            // Use subscribeToTopic so the Set stays in sync.
+            subscribeToTopic(device.mqttTopic);
           }
-        });
+        }
       } catch (err) {
-        console.error("Failed to fetch devices for subscription:", err);
+        console.error("[MQTT] Failed to fetch devices for startup subscription:", err);
       }
     });
 
     client.on("message", async (topic, message) => {
       let parsedJson: unknown;
-      
+
       try {
         parsedJson = JSON.parse(message.toString());
-      } catch (err) {
-        console.warn(`Malformed JSON message on topic ${topic}`);
+      } catch {
+        console.warn(`[MQTT] Malformed JSON on topic ${topic}`);
         return;
       }
 
-      const validationResult = mqttPayloadSchema.safeParse(parsedJson);
-      
-      if (!validationResult.success) {
-        console.warn(`Invalid message format on topic ${topic}: missing or invalid deviceId`);
+      const result = mqttPayloadSchema.safeParse(parsedJson);
+      if (!result.success) {
+        console.warn(`[MQTT] Invalid payload on topic ${topic}: missing or invalid deviceId`);
         return;
       }
 
-      const deviceId = validationResult.data.deviceId;
+      const { deviceId } = result.data;
 
       try {
         const device = await deviceRepository.findDeviceByDeviceId(deviceId);
 
         if (!device) {
-          console.warn(`Received message for unknown deviceId: ${deviceId}`);
+          console.warn(`[MQTT] Received message for unknown deviceId: ${deviceId}`);
           return;
         }
 
@@ -76,25 +121,23 @@ export const startMqttService = async () => {
         });
 
         emitDeviceUpdated(updatedDevice);
-
       } catch (err) {
-        console.error(`Error processing message for deviceId ${deviceId}:`, err);
+        console.error(`[MQTT] Error processing message for deviceId ${deviceId}:`, err);
       }
     });
 
     client.on("error", (err) => {
-      console.error("MQTT Client Error:", err);
+      console.error("[MQTT] Client error:", err.message);
     });
 
     client.on("offline", () => {
-      console.warn("MQTT Client Offline");
+      console.warn("[MQTT] Client offline");
     });
 
     client.on("reconnect", () => {
-      console.log("MQTT Client Reconnecting...");
+      console.log("[MQTT] Client reconnecting...");
     });
-
   } catch (err) {
-    console.error("Failed to start MQTT service:", err);
+    console.error("[MQTT] Failed to start service:", err);
   }
 };
