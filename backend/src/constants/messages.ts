@@ -1,7 +1,8 @@
 export const MESSAGES = {
   DEVICE: {
     NOT_FOUND: "Device not found",
-    ALREADY_EXISTS: "Device with this ID already exists",
+    ALREADY_EXISTS: "Device ID already exists. Please use a different Device ID.",
+    MQTT_TOPIC_EXISTS: "MQTT topic is already assigned to another device.",
     CREATED: "Device created successfully",
     UPDATED: "Device updated successfully",
     DELETED: "Device deleted successfully",
